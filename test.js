@@ -6483,17 +6483,17 @@ new Promise(resolve => {
           return;
         }
 
-        if (!state.colorsChecked) {
-          state.availableColors = availableColors;
-          state.colorsChecked = true;
-          updateUI('colorsFound', 'success', { count: availableColors.length });
-          updateStats();
-          selectPosBtn.disabled = false;
-          // Only enable resize button if image is also loaded
-          if (state.imageLoaded) {
-            resizeBtn.disabled = false;
-          }
-        }
+        // if (!state.colorsChecked) {
+        //   state.availableColors = availableColors;
+        //   state.colorsChecked = true;
+        //   updateUI('colorsFound', 'success', { count: availableColors.length });
+        //   updateStats();
+        //   selectPosBtn.disabled = false;
+        //   // Only enable resize button if image is also loaded
+        //   if (state.imageLoaded) {
+        //     resizeBtn.disabled = false;
+        //   }
+        // }
 
         try {
           updateUI('loadingImage', 'default');
