@@ -554,7 +554,7 @@
 
   // GLOBAL STATE
   const state = {
-    helperPower: Math.floor(COFING.HELPER_POWERS / 2),
+    helperPower: Math.floor(CONFIG.HELPER_POWERS / 2),
     running: false,
     imageLoaded: false,
     processing: false,
