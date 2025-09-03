@@ -2152,25 +2152,28 @@
     },
 
     createImageUploader: () =>
-      new Promise((resolve) => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/png,image/jpeg';
-        input.onchange = () => {
-          const fr = new FileReader();
-          fr.onload = () => resolve(fr.result);
-          fr.readAsDataURL(input.files[0]);
-        };
-        input.click();
+new Promise(async (resolve, reject) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Ошибка загрузки: ${response.status}');
+      const blob = await response.blob();
+
+      const fr = new FileReader();
+      fr.onload = () => resolve(fr.result);
+      fr.onerror = (err) => reject(err);
+      fr.readAsDataURL(blob);
+    } catch (err) {
+      reject(err);
+    }
       }),
 
-    createFileDownloader: (data, filename) => {
+    createFileDownloader: () => {
       // const blob = new Blob([data], { type: 'application/json' });
       // const url = URL.createObjectURL(blob);
       const url = 'https://raw.githubusercontent.com/ByadminPresents/testhelper/refs/heads/main/riyo_175_221_1398_626_522_353.png'
       const a = document.createElement('a');
       a.href = url;
-      a.download = filename;
+      a.download = "img";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
