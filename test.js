@@ -2,8 +2,8 @@
 ; (async () => {
   // CONFIGURATION CONSTANTS
   const CONFIG = {
-    HELPER_POWERS = 7,
-    HELP_DRAW_CONFIG_URL = "helper config url",
+    HELPER_POWERS: 7,
+    HELP_DRAW_CONFIG_URL: "helper config url",
     COOLDOWN_DEFAULT: 31000,
     TRANSPARENCY_THRESHOLD: 100,
     WHITE_THRESHOLD: 250,
@@ -320,7 +320,8 @@
             helpDrawConfig = fetchedConfig;
 
         }
-  }
+  };
+};
 
   // Function to load translations from JSON file with retry mechanism
   const loadTranslations = async (language, retryCount = 0) => {
@@ -553,7 +554,7 @@
 
   // GLOBAL STATE
   const state = {
-    helperPower = Math.floor(COFING.HELPER_POWERS / 2),
+    helperPower: Math.floor(COFING.HELPER_POWERS / 2),
     running: false,
     imageLoaded: false,
     processing: false,
