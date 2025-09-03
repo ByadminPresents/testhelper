@@ -2168,13 +2168,12 @@
   }),
 
 
-    createFileDownloader: () => {
-      // const blob = new Blob([data], { type: 'application/json' });
-      // const url = URL.createObjectURL(blob);
-      const url = 'https://raw.githubusercontent.com/ByadminPresents/testhelper/refs/heads/main/riyo_175_221_1398_626_522_353.png'
+    createFileDownloader: (data, filename) => {
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = "img";
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -6603,35 +6602,19 @@
         Utils.showAlert(Utils.t('selectPositionAlert'), 'info');
         updateUI('waitingPosition', 'default');
 
-        const tempFetch = async (url, options) => {
-          if (
-            typeof url === 'string' &&
-            url.includes('https://backend.wplace.live/s0/pixel/') &&
-            options?.method?.toUpperCase() === 'POST'
-          ) {
-            try {
-              const response = await originalFetch(url, options);
-              const clonedResponse = response.clone();
-              const data = await clonedResponse.json();
-
-              if (data?.painted === 1) {
-                const regionMatch = url.match(/\/pixel\/(\d+)\/(\d+)/);
-                if (regionMatch && regionMatch.length >= 3) {
-                  state.region = {
-                    x: Number.parseInt(regionMatch[1]),
-                    y: Number.parseInt(regionMatch[2]),
+        state.region = {
+                    x: 1398,
+                    y: 626,
                   };
-                }
 
-                const payload = JSON.parse(options.body);
-                if (payload?.coords && Array.isArray(payload.coords)) {
-                  state.startPosition = {
-                    x: payload.coords[0],
-                    y: payload.coords[1],
+        state.startPosition = {
+                    x: 522,
+                    y: 353,
                   };
+
                   state.lastPosition = { x: 0, y: 0 };
 
-                  await overlayManager.setPosition(state.startPosition, state.region);
+                          await overlayManager.setPosition(state.startPosition, state.region);
 
                   if (state.imageLoaded) {
                     startBtn.disabled = false;
@@ -6640,16 +6623,54 @@
                   window.fetch = originalFetch;
                   state.selectingPosition = false;
                   updateUI('positionSet', 'success');
-                }
-              }
 
-              return response;
-            } catch {
-              return originalFetch(url, options);
-            }
-          }
-          return originalFetch(url, options);
-        };
+        // const tempFetch = async (url, options) => {
+        //   if (
+        //     typeof url === 'string' &&
+        //     url.includes('https://backend.wplace.live/s0/pixel/') &&
+        //     options?.method?.toUpperCase() === 'POST'
+        //   ) {
+        //     try {
+        //       const response = await originalFetch(url, options);
+        //       const clonedResponse = response.clone();
+        //       const data = await clonedResponse.json();
+
+        //       if (data?.painted === 1) {
+        //         const regionMatch = url.match(/\/pixel\/(\d+)\/(\d+)/);
+        //         if (regionMatch && regionMatch.length >= 3) {
+        //           state.region = {
+        //             x: Number.parseInt(regionMatch[1]),
+        //             y: Number.parseInt(regionMatch[2]),
+        //           };
+        //         }
+
+        //         const payload = JSON.parse(options.body);
+        //         if (payload?.coords && Array.isArray(payload.coords)) {
+        //           state.startPosition = {
+        //             x: payload.coords[0],
+        //             y: payload.coords[1],
+        //           };
+        //           state.lastPosition = { x: 0, y: 0 };
+
+        //           await overlayManager.setPosition(state.startPosition, state.region);
+
+        //           if (state.imageLoaded) {
+        //             startBtn.disabled = false;
+        //           }
+
+        //           window.fetch = originalFetch;
+        //           state.selectingPosition = false;
+        //           updateUI('positionSet', 'success');
+        //         }
+        //       }
+
+        //       return response;
+        //     } catch {
+        //       return originalFetch(url, options);
+        //     }
+        //   }
+        //   return originalFetch(url, options);
+        // };
 
         const originalFetch = window.fetch;
         window.fetch = tempFetch;
