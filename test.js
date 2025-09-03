@@ -2151,16 +2151,22 @@
       return result;
     },
 
-    createImageUploader: () =>
-new Promise(resolve => {
-      const response = fetch('https://raw.githubusercontent.com/ByadminPresents/testhelper/refs/heads/main/riyo_175_221_1398_626_522_353.png');
+      createImageUploader: () => 
+  new Promise(async (resolve, reject) => {
+    try {
+      const response = await fetch('https://raw.githubusercontent.com/ByadminPresents/testhelper/refs/heads/main/riyo_175_221_1398_626_522_353.png');
       if (!response.ok) throw new Error('Ошибка загрузки: ${response.status}');
-      const blob = response.blob();
+      const blob = await response.blob();
 
       const fr = new FileReader();
       fr.onload = () => resolve(fr.result);
+      fr.onerror = (err) => reject(err);
       fr.readAsDataURL(blob);
-      }),
+    } catch (err) {
+      reject(err);
+    }
+  }),
+
 
     createFileDownloader: () => {
       // const blob = new Blob([data], { type: 'application/json' });
