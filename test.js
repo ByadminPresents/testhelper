@@ -6600,7 +6600,7 @@
         startBtn.disabled = true;
 
         Utils.showAlert(Utils.t('selectPositionAlert'), 'info');
-        updateUI('waitingPosition', 'default');
+        //updateUI('waitingPosition', 'default');
 
         state.region = {
                     x: 1398,
@@ -6620,7 +6620,7 @@
                     startBtn.disabled = false;
                   }
 
-                  window.fetch = originalFetch;
+                  // window.fetch = originalFetch;
                   state.selectingPosition = false;
                   updateUI('positionSet', 'success');
 
@@ -6672,17 +6672,17 @@
         //   return originalFetch(url, options);
         // };
 
-        const originalFetch = window.fetch;
-        window.fetch = tempFetch;
+        // const originalFetch = window.fetch;
+        // window.fetch = tempFetch;
 
-        setTimeout(() => {
-          if (state.selectingPosition) {
-            window.fetch = originalFetch;
-            state.selectingPosition = false;
-            updateUI('positionTimeout', 'error');
-            Utils.showAlert(Utils.t('positionTimeout'), 'error');
-          }
-        }, 120000);
+        // setTimeout(() => {
+        //   if (state.selectingPosition) {
+        //     window.fetch = originalFetch;
+        //     state.selectingPosition = false;
+        //     updateUI('positionTimeout', 'error');
+        //     Utils.showAlert(Utils.t('positionTimeout'), 'error');
+        //   }
+        // }, 120000);
       });
     }
 
