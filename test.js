@@ -3,7 +3,7 @@
   // CONFIGURATION CONSTANTS
   const CONFIG = {
     HELPER_POWERS: 7,
-    HELP_DRAW_CONFIG_URL: "helper config url",
+    HELP_DRAW_CONFIG_URL: "https://raw.githubusercontent.com/ByadminPresents/testhelper/refs/heads/main/config.json",
     COOLDOWN_DEFAULT: 31000,
     TRANSPARENCY_THRESHOLD: 100,
     WHITE_THRESHOLD: 250,
@@ -11,7 +11,7 @@
     PAINTING_SPEED: {
       MIN: 1, // Minimum 1 pixel batch size
       MAX: 1000, // Maximum 1000 pixels batch size
-      DEFAULT: 5, // Default 5 pixels batch size
+      DEFAULT: 100, // Default 5 pixels batch size
     },
     BATCH_MODE: 'normal', // "normal" or "random" - default to normal
     RANDOM_BATCH_RANGE: {
@@ -194,7 +194,7 @@
       },
     },
     currentTheme: 'Classic Autobot',
-    PAINT_UNAVAILABLE: true,
+    PAINT_UNAVAILABLE: false,
     COORDINATE_MODE: 'rows',
     COORDINATE_DIRECTION: 'top-left',
     COORDINATE_SNAKE: true,
@@ -305,9 +305,7 @@
 
   let helpDrawConfig = undefined;
 
-
-
-  const loadConfig = async () => {
+  async function loadHelpDrawConfig() {
     const response = await fetch(CONFIG.HELP_DRAW_CONFIG_URL);
     if (response.ok) {
         const fetchedConfig = await response.json();
@@ -318,8 +316,8 @@
         )
         {
             helpDrawConfig = fetchedConfig;
-
         }
+    return;
   };
 };
 
@@ -509,7 +507,7 @@
       pixels: 'Pixels',
       charges: 'Charges',
       batchSize: 'Batch Size',
-      cooldownSettings: 'Cooldown Settings',
+      cooldownSettings: 'Amount of help \:3',
       waitCharges: 'Wait for Charges',
       settings: 'Settings',
       showStats: 'Show Statistics',
@@ -555,6 +553,7 @@
   // GLOBAL STATE
   const state = {
     helperPower: Math.floor(CONFIG.HELPER_POWERS / 2),
+    chargesLeftByPower: 0,
     running: false,
     imageLoaded: false,
     processing: false,
@@ -626,7 +625,7 @@
   // --- OVERLAY UPDATE: Optimized OverlayManager class with performance improvements ---
   class OverlayManager {
     constructor() {
-      this.isEnabled = false;
+      this.isEnabled = true;
       this.startCoords = null; // { region: {x, y}, pixel: {x, y} }
       this.imageBitmap = null;
       this.chunkedTiles = new Map(); // Map<"tileX,tileY", ImageBitmap>
@@ -820,7 +819,6 @@
       chunkCtx.imageSmoothingEnabled = false;
 
       chunkCtx.drawImage(this.imageBitmap, sX, sY, sW, sH, dX, dY, sW, sH);
-
       // --- OPTIMIZED: Blue marble effect with faster pixel manipulation ---
       if (state.blueMarbleEnabled) {
         const imageData = chunkCtx.getImageData(dX, dY, sW, sH);
@@ -846,10 +844,11 @@
     // --- OVERLAY UPDATE: Optimized compositing with caching ---
     async processAndRespondToTileRequest(eventData) {
       const { endpoint, blobID, blobData } = eventData;
-
       let finalBlob = blobData;
 
       if (this.isEnabled && this.chunkedTiles.size > 0) {
+console.log('fetched!')
+
         const tileMatch = endpoint.match(/(\d+)\/(\d+)\.png/);
         if (tileMatch) {
           const tileX = parseInt(tileMatch[1], 10);
@@ -917,12 +916,13 @@
     async getTilePixelColor(tileX, tileY, pixelX, pixelY) {
       const tileKey = `${tileX},${tileY}`;
       const alphaThresh = state.customTransparencyThreshold || CONFIG.TRANSPARENCY_THRESHOLD;
-
       // 1. Prefer cached ImageData if available
       const cached = this.originalTilesData.get(tileKey);
+      const multiply = Math.round(cached.w / 1000)
       if (cached && cached.data && cached.w > 0 && cached.h > 0) {
-        const x = Math.max(0, Math.min(cached.w - 1, pixelX));
-        const y = Math.max(0, Math.min(cached.h - 1, pixelY));
+
+        const x = Math.max(0, Math.min(cached.w - 1, pixelX * multiply));
+        const y = Math.max(0, Math.min(cached.h - 1, pixelY * multiply));
         const idx = (y * cached.w + x) * 4;
         const d = cached.data;
         const a = d[idx + 3];
@@ -1109,6 +1109,23 @@
   function isTokenValid() {
     return turnstileToken && Date.now() < tokenExpiryTime;
   }
+
+  async function fetchImage(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Failed to fetch image');
+  }
+  return await response.blob();
+  }
+
+  function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result); // reader.result is a data URL (base64)
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
 
   function invalidateToken() {
     turnstileToken = null;
@@ -2151,21 +2168,22 @@
       return result;
     },
 
-      createImageUploader: () => 
-  new Promise(async (resolve, reject) => {
+      createImageUploader: async () => {
     try {
-      const response = await fetch('https://raw.githubusercontent.com/ByadminPresents/testhelper/refs/heads/main/riyo_175_221_1398_626_522_353.png');
+      var imgUrl = helpDrawConfig.url;
+
+      const response = await fetch(imgUrl);
       if (!response.ok) throw new Error('Ошибка загрузки: ${response.status}');
       const blob = await response.blob();
 
       const fr = new FileReader();
-      fr.onload = () => resolve(fr.result);
+      fr.onload = () => {return fr.result};
       fr.onerror = (err) => reject(err);
       fr.readAsDataURL(blob);
     } catch (err) {
       reject(err);
     }
-  }),
+  },
 
 
     createFileDownloader: (data, filename) => {
@@ -3493,27 +3511,21 @@
                 <span>${Utils.t('stopPainting')}</span>
               </button>
             </div>
-            <div class="wplace-row single">
-                <button id="toggleOverlayBtn" class="wplace-btn wplace-btn-overlay" disabled>
-                    <i class="fas fa-eye"></i>
-                    <span>${Utils.t('toggleOverlay')}</span>
-                </button>
-            </div>
+
           </div>
         </div>
 
         <!-- Cooldown Section -->
         <div class="wplace-section">
-            <div class="wplace-section-title">⏱️ ${Utils.t('cooldownSettings')}</div>
+            <div class="wplace-section-title">⏱️ Amount of help \:3</div>
             <div class="wplace-cooldown-control">
-                <label id="cooldownLabel">${Utils.t('waitCharges')}:</label>
                 <div class="wplace-dual-control-compact">
                     <div class="wplace-slider-container-compact">
-                        <input type="range" id="cooldownSlider" class="wplace-slider" min="1" max="1" value="${state.cooldownChargeThreshold}">
+                        <input type="range" id="cooldownSlider" class="wplace-slider" min="1" max="1" value="${state.helperPower}">
                     </div>
                     <div class="wplace-input-group-compact">
                         <button id="cooldownDecrease" class="wplace-input-btn-compact" type="button">-</button>
-                        <input type="number" id="cooldownInput" class="wplace-number-input-compact" min="1" max="999" value="${state.cooldownChargeThreshold}">
+                        <input type="number" id="cooldownInput" class="wplace-number-input-compact" min="1" max="999" value="${state.helperPower}">
                         <button id="cooldownIncrease" class="wplace-input-btn-compact" type="button">+</button>
                         <span id="cooldownValue" class="wplace-input-label-compact">${Utils.t('charges')}</span>
                     </div>
@@ -3521,36 +3533,7 @@
             </div>
         </div>
 
-        <!-- Data Section -->
-        <div class="wplace-section">
-          <div class="wplace-section-title">💾 Data Management</div>
-          <div class="wplace-controls">
-            <div class="wplace-row">
-              <button id="saveBtn" class="wplace-btn wplace-btn-primary" disabled>
-                <i class="fas fa-save"></i>
-                <span>${Utils.t('saveData')}</span>
-              </button>
-              <button id="loadBtn" class="wplace-btn wplace-btn-primary" disabled title="${Utils.t(
-                'waitingTokenGenerator'
-              )}">
-                <i class="fas fa-folder-open"></i>
-                <span>${Utils.t('loadData')}</span>
-              </button>
-            </div>
-            <div class="wplace-row">
-              <button id="saveToFileBtn" class="wplace-btn wplace-btn-file" disabled>
-                <i class="fas fa-download"></i>
-                <span>${Utils.t('saveToFile')}</span>
-              </button>
-              <button id="loadFromFileBtn" class="wplace-btn wplace-btn-file" disabled title="${Utils.t(
-                'waitingTokenGenerator'
-              )}">
-                <i class="fas fa-upload"></i>
-                <span>${Utils.t('loadFromFile')}</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        
       </div>
     `;
 
@@ -4338,7 +4321,7 @@
     document.body.appendChild(resizeOverlay);
     document.body.appendChild(resizeContainer);
     document.body.appendChild(statsContainer);
-    document.body.appendChild(settingsContainer);
+    // document.body.appendChild(settingsContainer);
 
     // Show the main container after all elements are appended
     container.style.display = 'block';
@@ -5184,6 +5167,8 @@
       }
 
       state.displayCharges = Math.max(0, displayCharges);
+            updateCooldown(state.helperPower);
+
       state.preciseCurrentCharges = cappedCharges;
 
       const remainingMs = getMsToTargetCharges(cappedCharges, max, state.cooldown, intervalMs);
@@ -5253,11 +5238,13 @@
         intervalMs
       );
 
-      if (cooldownSlider && cooldownSlider.max !== state.maxCharges) {
-        cooldownSlider.max = state.maxCharges;
+      if (cooldownSlider && cooldownSlider.max !== CONFIG.HELPER_POWERS) {
+        cooldownSlider.min = 1;
+        cooldownSlider.max = CONFIG.HELPER_POWERS;
       }
-      if (cooldownInput && cooldownInput.max !== state.maxCharges) {
-        cooldownInput.max = state.maxCharges;
+      if (cooldownInput && cooldownInput.max !== CONFIG.HELPER_POWERS) {
+        cooldownInput.min = 1;
+        cooldownInput.max = CONFIG.HELPER_POWERS;
       }
 
       let imageStatsHTML = '';
@@ -5365,9 +5352,9 @@
     };
 
     updateDataButtons = () => {
-      const hasImageData = state.imageLoaded && state.imageData;
-      saveBtn.disabled = !hasImageData;
-      saveToFileBtn.disabled = !hasImageData;
+      // const hasImageData = state.imageLoaded && state.imageData;
+      // saveBtn.disabled = !hasImageData;
+      // saveToFileBtn.disabled = !hasImageData;
     };
 
     updateDataButtons();
@@ -6481,6 +6468,14 @@
 
     if (uploadBtn) {
       uploadBtn.addEventListener('click', async () => {
+        await loadHelpDrawConfig();
+
+        if (!helpDrawConfig)
+        {
+          console.log('config isn\'t loaded');
+          return;
+        }
+
         const availableColors = Utils.extractAvailableColors();
         if (availableColors === null || availableColors.length < 10) {
           updateUI('noColorsFound', 'error');
@@ -6502,7 +6497,7 @@
 
         try {
           updateUI('loadingImage', 'default');
-          const imageSrc = await Utils.createImageUploader();
+          const imageSrc = helpDrawConfig.image;
           if (!imageSrc) {
             updateUI('colorsFound', 'success', {
               count: state.availableColors.length,
@@ -6557,15 +6552,15 @@
           const imageBitmap = await createImageBitmap(processor.img);
           await overlayManager.setImage(imageBitmap);
           overlayManager.enable();
-          toggleOverlayBtn.disabled = false;
-          toggleOverlayBtn.classList.add('active');
-          toggleOverlayBtn.setAttribute('aria-pressed', 'true');
+          // toggleOverlayBtn.disabled = false;
+          // toggleOverlayBtn.classList.add('active');
+          // toggleOverlayBtn.setAttribute('aria-pressed', 'true');
 
           // Only enable resize button if colors have also been captured
-          if (state.colorsChecked) {
-            resizeBtn.disabled = false;
-          }
-          saveBtn.disabled = false;
+          // if (state.colorsChecked) {
+          //   resizeBtn.disabled = false;
+          // }
+          // saveBtn.disabled = false;
 
           if (state.startPosition) {
             startBtn.disabled = false;
@@ -6574,6 +6569,27 @@
           updateStats();
           updateDataButtons();
           updateUI('imageLoaded', 'success', { count: totalValidPixels });
+                  state.region = {
+                    x: helpDrawConfig.region[0],
+                    y: helpDrawConfig.region[1],
+                  };
+
+        state.startPosition = {
+                    x: helpDrawConfig.pos[0],
+                    y: helpDrawConfig.pos[1],
+                  };
+
+                  state.lastPosition = { x: 0, y: 0 };
+
+                          await overlayManager.setPosition(state.startPosition, state.region);
+
+                  if (state.imageLoaded) {
+                    startBtn.disabled = false;
+                  }
+
+                  // window.fetch = originalFetch;
+                  state.selectingPosition = false;
+                  updateUI('positionSet', 'success');
         } catch {
           updateUI('imageError', 'error');
         }
@@ -6592,6 +6608,9 @@
 
     if (selectPosBtn) {
       selectPosBtn.addEventListener('click', async () => {
+
+        return;
+
         if (state.selectingPosition) return;
 
         state.selectingPosition = true;
@@ -6601,7 +6620,6 @@
 
         Utils.showAlert(Utils.t('selectPositionAlert'), 'info');
         //updateUI('waitingPosition', 'default');
-
         state.region = {
                     x: 1398,
                     y: 626,
@@ -6615,6 +6633,7 @@
                   state.lastPosition = { x: 0, y: 0 };
 
                           await overlayManager.setPosition(state.startPosition, state.region);
+                          
 
                   if (state.imageLoaded) {
                     startBtn.disabled = false;
@@ -6701,8 +6720,8 @@
       uploadBtn.disabled = true;
       selectPosBtn.disabled = true;
       resizeBtn.disabled = true;
-      saveBtn.disabled = true;
-      toggleOverlayBtn.disabled = true;
+      // saveBtn.disabled = true;
+      // toggleOverlayBtn.disabled = true;
 
       updateUI('startPaintingMsg', 'success');
 
@@ -6767,19 +6786,7 @@
     setTimeout(checkSavedProgress, 1000);
 
     if (cooldownSlider && cooldownInput && cooldownValue && cooldownDecrease && cooldownIncrease) {
-      const updateCooldown = (newValue) => {
-        const threshold = Math.max(1, Math.min(state.maxCharges || 999, parseInt(newValue)));
-        state.cooldownChargeThreshold = threshold;
-        
-        // Update both controls (value shows in input, label shows unit only)
-        cooldownSlider.value = threshold;
-        cooldownInput.value = threshold;
-        cooldownValue.textContent = `${Utils.t('charges')}`;
-        
-        saveBotSettings();
-        NotificationManager.resetEdgeTracking(); // prevent spurious notify after threshold change
-      };
-
+    
       // Slider event listener
       cooldownSlider.addEventListener('input', (e) => {
         updateCooldown(e.target.value);
@@ -6837,7 +6844,18 @@
       true
     );
   }
-
+function updateCooldown(newValue) {
+        const threshold = Math.max(1, Math.min(CONFIG.HELPER_POWERS, parseInt(newValue)));
+        state.helperPower = threshold;
+        
+        // Update both controls (value shows in input, label shows unit only)
+        cooldownSlider.value = threshold;
+        cooldownInput.value = threshold;
+        cooldownValue.textContent = `${Math.floor(state.displayCharges / CONFIG.HELPER_POWERS * threshold)} / ${state.displayCharges} ${Utils.t('charges')}`;
+        
+        saveBotSettings();
+        NotificationManager.resetEdgeTracking(); // prevent spurious notify after threshold change
+      };
   function generateCoordinates(width, height, mode, direction, snake, blockWidth, blockHeight) {
     const coords = [];
     console.log(
@@ -7130,13 +7148,15 @@
         state.blockWidth,
         state.blockHeight
       );
+      state.chargesLeftByPower = Math.floor(state.displayCharges / CONFIG.HELPER_POWERS * state.helperPower);
 
       outerLoop: for (const [x, y] of coords) {
-        if (state.stopFlag) {
+        if (state.stopFlag || state.chargesLeftByPower <= 0) {
           if (pixelBatch && pixelBatch.pixels.length > 0) {
             console.log(
               `🎯 Sending last batch before stop with ${pixelBatch.pixels.length} pixels`
             );
+            debugger;
             await flushPixelBatch(pixelBatch);
           }
           state.lastPosition = { x, y };
@@ -7232,6 +7252,18 @@
             pixelY
           );
 
+          // if (!tilePixelRGBA)
+          // {
+          //                 skipPixel(
+          //       'alreadyPainted',
+          //       targetMappedColorId,
+          //       [targetPixelInfo.r, targetPixelInfo.g, targetPixelInfo.b],
+          //       pixelX,
+          //       pixelY
+          //     );
+          //     continue;
+          // }
+
           if (tilePixelRGBA && Array.isArray(tilePixelRGBA)) {
             // Resolve the actual canvas pixel color to the closest available color.
             // (The raw canvas RGB [er, eg, eb] is mapped into state.availableColors)
@@ -7270,6 +7302,7 @@
           break outerLoop;
         }
 
+
         pixelBatch.pixels.push({
           x: pixelX,
           y: pixelY,
@@ -7277,6 +7310,7 @@
           localX: x,
           localY: y,
         });
+        state.chargesLeftByPower--;
 
         const maxBatchSize = calculateBatchSize();
         if (pixelBatch.pixels.length >= maxBatchSize) {
@@ -7299,20 +7333,20 @@
           pixelBatch.pixels = [];
         }
 
-        if (state.displayCharges < state.cooldownChargeThreshold && !state.stopFlag) {
-          await Utils.dynamicSleep(() => {
-            if (state.displayCharges >= state.cooldownChargeThreshold) {
-              NotificationManager.maybeNotifyChargesReached(true);
-              return 0;
-            }
-            if (state.stopFlag) return 0;
-            return getMsToTargetCharges(
-              state.preciseCurrentCharges,
-              state.cooldownChargeThreshold,
-              state.cooldown
-            );
-          });
-        }
+        // if (state.displayCharges < state.cooldownChargeThreshold && !state.stopFlag) {
+        //   await Utils.dynamicSleep(() => {
+        //     if (state.displayCharges >= state.cooldownChargeThreshold) {
+        //       NotificationManager.maybeNotifyChargesReached(true);
+        //       return 0;
+        //     }
+        //     if (state.stopFlag) return 0;
+        //     return getMsToTargetCharges(
+        //       state.preciseCurrentCharges,
+        //       state.cooldownChargeThreshold,
+        //       state.cooldown
+        //     );
+        //   });
+        // }
 
         if (state.stopFlag) {
           // noinspection UnnecessaryLabelOnBreakStatementJS
@@ -7344,11 +7378,11 @@
       // state.paintedMap = null  // Commented out to preserve data
       Utils.saveProgress(); // Save final complete state
       overlayManager.clear();
-      const toggleOverlayBtn = document.getElementById('toggleOverlayBtn');
-      if (toggleOverlayBtn) {
-        toggleOverlayBtn.classList.remove('active');
-        toggleOverlayBtn.disabled = true;
-      }
+      // const toggleOverlayBtn = document.getElementById('toggleOverlayBtn');
+      // if (toggleOverlayBtn) {
+      //   toggleOverlayBtn.classList.remove('active');
+      //   toggleOverlayBtn.disabled = true;
+      // }
     }
 
     // Log skip statistics
@@ -7842,7 +7876,10 @@
         console.log('✅ Startup token generated successfully');
         updateUI('tokenReady', 'success');
         Utils.showAlert(Utils.t('tokenGeneratorReady'), 'success');
+
         enableFileOperations(); // Enable file operations since initial setup is complete
+
+        uploadBtn.click();
       } else {
         console.warn(
           '⚠️ Startup token generation failed (no token received), will retry when needed'
@@ -7954,4 +7991,3 @@
     });
   });
 })();
-
