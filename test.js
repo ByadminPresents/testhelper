@@ -625,6 +625,7 @@ if (loadedTranslations[language]) {
       title: 'WPlace Auto-Image',
       toggleOverlay: 'Toggle Overlay',
       scanColors: 'Scan Colors',
+      configLoaderTitle: 'Config loader',
       downloadConfig: 'Fetch config',
       resizeImage: 'Resize Image',
       selectPosition: 'Select Position',
@@ -3598,7 +3599,7 @@ if (loadedTranslations[language]) {
 
         <!-- Image Section -->
         <div class="wplace-section">
-          <div class="wplace-section-title"><i class="fas fa-cog wplace-settings-icon"></i> Config loader</div>
+          <div class="wplace-section-title"><i class="fas fa-cog wplace-settings-icon"></i>${Utils.t('configLoaderTitle')}</div>
           <div class="wplace-controls">
             <div class="wplace-row">
               <button id="uploadBtn" class="wplace-btn wplace-btn-upload" disabled title="${Utils.t(
