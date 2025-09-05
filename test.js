@@ -413,13 +413,13 @@
       console.log('🌐 Initializing translation system...');
 
       // Always ensure English is loaded as fallback first
-      if (!loadedTranslations['en']) {
-        const englishLoaded = await loadTranslations('en');
-        if (!englishLoaded) {
-          console.warn('⚠️ Failed to load English translations from CDN, using fallback');
-          showTranslationWarning('⚠️ Translation loading failed, using basic fallbacks');
-        }
-      }
+      // if (!loadedTranslations['en']) {
+      //   const englishLoaded = await loadTranslations('en');
+      //   if (!englishLoaded) {
+      //     console.warn('⚠️ Failed to load English translations from CDN, using fallback');
+      //     showTranslationWarning('⚠️ Translation loading failed, using basic fallbacks');
+      //   }
+      // }
 
       // Then load user's language preference
       await loadLanguagePreference();
@@ -431,8 +431,8 @@
       if (!state.language) {
         state.language = 'en';
       }
-      console.warn('⚠️ Using fallback translations due to initialization failure');
-      showTranslationWarning('⚠️ Translation system error, using basic English');
+      // console.warn('⚠️ Using fallback translations due to initialization failure');
+      // showTranslationWarning('⚠️ Translation system error, using basic English');
     }
   };
 
@@ -5112,7 +5112,7 @@ console.log('fetched!')
 
       // if (
       //   state.displayCharges < state.cooldownChargeThreshold &&
-      //   !state.stopFlag &&
+      //   !state.stopFlag &&s
       //   state.running
       // ) {
       //   updateChargesThresholdUI(intervalMs);
@@ -7788,4 +7788,3 @@ function updateCooldown(newValue) {
     });
   });
 })();
-
