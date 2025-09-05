@@ -6588,7 +6588,7 @@ if (loadedTranslations[language]) {
       stopBtn.disabled = false;
       uploadBtn.disabled = true;
 
-      // await loadConfig();
+      await loadConfig();
 
       if (!state.imageLoaded || !state.startPosition || !state.region) {
         updateUI('missingRequirements', 'error');
@@ -6600,7 +6600,7 @@ if (loadedTranslations[language]) {
         return;
       }
       await ensureToken();
-      if (!turnstileToken || stopFlag) 
+      if (!turnstileToken || state.stopFlag) 
         {
         state.running = false;
         state.stopFlag = true;
@@ -6616,7 +6616,6 @@ if (loadedTranslations[language]) {
         await processImage();
       } catch (e) {
         console.error('Unexpected error:', e.message);
-        console.log(e.message)
         updateUI('paintingError', 'error');
       } finally {
         state.running = false;
