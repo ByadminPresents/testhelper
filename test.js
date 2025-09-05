@@ -1,4 +1,4 @@
-// eslint-disable-next-line prettier/prettier
+// eslint-disable-next-line prettier/prettier 2
 ; (async () => {
   // CONFIGURATION CONSTANTS
   const CONFIG = {
@@ -5126,7 +5126,7 @@ console.log('fetched!')
         }
       }
     }
-
+showTranslationWarning('Updatestats init..');
     updateStats = async (isManualRefresh = false) => {
       const isForcedRefresh = isManualRefresh;
       const isFirstCheck = !state.fullChargeData?.startTime;
@@ -6593,8 +6593,8 @@ console.log('fetched!')
         );
       }
     };
-
-    setTimeout(checkSavedProgress, 1000);
+showTranslationWarning('checking saved progress..');
+    // setTimeout(checkSavedProgress, 1000);
 
     if (cooldownSlider && cooldownInput && cooldownValue && cooldownDecrease && cooldownIncrease) {
     
@@ -6622,9 +6622,10 @@ console.log('fetched!')
       Utils.createScrollToAdjust(cooldownSlider, updateCooldown, 1, state.maxCharges, 1);
     }
 
-    loadBotSettings();
+    // loadBotSettings();
     // Ensure notification poller reflects current settings
     NotificationManager.syncFromState();
+    showTranslationWarning('UI is initialized!');
   }
   catch (err) {
     showTranslationWarning(err.message);
