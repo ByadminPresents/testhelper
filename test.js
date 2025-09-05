@@ -1,4 +1,4 @@
-// eslint-disable-next-line prettier/prettier
+// eslint-disable-next-line prettier/prettier 2
 ; (async () => {
   // CONFIGURATION CONSTANTS
   const CONFIG = {
@@ -3330,6 +3330,8 @@ console.log('fetched!')
   }
 
   async function createUI() {
+    try {
+
     await detectLanguage();
 
     const existingContainer = document.getElementById('wplace-image-bot-container');
@@ -6629,6 +6631,10 @@ showTranslationWarning('Containers initialized');
     // Ensure notification poller reflects current settings
     NotificationManager.syncFromState();
   }
+  catch (err) {
+    showTranslationWarning(err.message);
+  }
+  }
 
   function getMsToTargetCharges(current, target, cooldown, intervalMs = 0) {
     const remainingCharges = target - current;
@@ -7700,8 +7706,7 @@ function updateCooldown(newValue) {
   // Load theme preference immediately on startup before creating UI
   loadThemePreference();
   applyTheme();
-try
-{
+
   createUI().then(() => {
     // Generate token automatically after UI is ready
     setTimeout(initializeTokenGenerator, 1000);
@@ -7789,8 +7794,5 @@ try
       Utils.cleanupTurnstile();
     });
   });
-}
-catch (err) {
-  showTranslationWarning(err.message)
-}
+
 })();
