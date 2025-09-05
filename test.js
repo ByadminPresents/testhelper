@@ -6581,19 +6581,36 @@ await loadHelpDrawConfig();
     }
 
     async function startPainting() {
-      loadConfig();
-      if (!state.imageLoaded || !state.startPosition || !state.region) {
-        updateUI('missingRequirements', 'error');
-        return;
-      }
-      await ensureToken();
-      if (!turnstileToken) return;
+
+      await loadConfig();
 
       state.running = true;
       state.stopFlag = false;
       startBtn.disabled = true;
-      stopBtn.disabled = false;
+      stopBtn.disabled = true;
       uploadBtn.disabled = true;
+
+      if (!state.imageLoaded || !state.startPosition || !state.region) {
+        updateUI('missingRequirements', 'error');
+        state.running = false;
+        state.stopFlag = true;
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        uploadBtn.disabled = true;
+        return;
+      }
+      await ensureToken();
+      if (!turnstileToken) 
+        {
+        state.running = false;
+        state.stopFlag = true;
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        uploadBtn.disabled = true;
+          return;
+        }
+
+      stopBtn.disabled = false;
 
       updateUI('startPaintingMsg', 'success');
 
@@ -7722,7 +7739,7 @@ function updateCooldown(newValue) {
 
         enableFileOperations(); // Enable file operations since initial setup is complete
 
-        loadConfig();
+        await loadConfig();
       } else {
         console.warn(
           '⚠️ Startup token generation failed (no token received), will retry when needed'
