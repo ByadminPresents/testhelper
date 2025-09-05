@@ -6568,7 +6568,7 @@ console.log('fetched!')
 
                           await overlayManager.setPosition(state.startPosition, state.region);
 
-                  if (state.imageLoaded) {
+                  if (state.imageLoaded && !state.running) {
                     startBtn.disabled = false;
                   }
 
@@ -7749,7 +7749,7 @@ function updateCooldown(newValue) {
         enableFileOperations();
       }
     } catch (error) {
-      console.error('❌ Critical error during Turnstile initialization:', error); // More specific error
+      console.error('❌ Critical error during Turnstile initialization:', error.message); // More specific error
       updateUI('tokenRetryLater', 'warning');
       // Still enable file operations even if initial setup fails
       // Users can load progress and use manual/hybrid modes
