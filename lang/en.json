@@ -1,7 +1,9 @@
 {
   "title": "Image helper :3",
   "toggleOverlay": "Toggle Overlay",
-  "scanColors": "Scan Colors",
+  "scanColors": "Scan Colors", 
+  "configLoaderTitle": "Config loader",
+  "downloadConfig": "Fetch config",
   "uploadImage": "Upload",
   "resizeImage": "Resize",
   "selectPosition": "Select Position",
