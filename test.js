@@ -6597,7 +6597,7 @@ console.log('fetched!')
         state.stopFlag = true;
         startBtn.disabled = false;
         stopBtn.disabled = true;
-        uploadBtn.disabled = true;
+        uploadBtn.disabled = false;
         return;
       }
       await ensureToken();
@@ -6607,7 +6607,7 @@ console.log('fetched!')
         state.stopFlag = true;
         startBtn.disabled = false;
         stopBtn.disabled = true;
-        uploadBtn.disabled = true;
+        uploadBtn.disabled = false;
           return;
         }
 
@@ -6621,7 +6621,7 @@ console.log('fetched!')
       } finally {
         state.running = false;
         stopBtn.disabled = true;
-        saveBtn.disabled = false;
+        // saveBtn.disabled = false;
 
         if (state.stopFlag) {
           startBtn.disabled = false;
