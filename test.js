@@ -6616,6 +6616,7 @@ if (loadedTranslations[language]) {
         await processImage();
       } catch (e) {
         console.error('Unexpected error:', e.message);
+        console.log(e.message)
         updateUI('paintingError', 'error');
       } finally {
         state.running = false;
