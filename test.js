@@ -1,4 +1,4 @@
-// eslint-disable-next-line prettier/prettier
+// eslint-disable-next-line prettier/prettier 2
 ; (async () => {
   // CONFIGURATION CONSTANTS
   const CONFIG = {
@@ -3345,11 +3345,12 @@ console.log('fetched!')
     if (existingResizeOverlay) existingResizeOverlay.remove();
 
     loadThemePreference();
+    showTranslationWarning('Initializing translations..');
     await initializeTranslations();
-
+showTranslationWarning('Initialized lang');
     const theme = getCurrentTheme();
     applyTheme(); // <- new: set CSS vars and theme class before building UI
-
+showTranslationWarning('Initialized theme');
     function appendLinkOnce(href, attributes = {}) {
       // Check if a link with the same href already exists in the document head
       const exists = Array.from(document.head.querySelectorAll('link')).some(
@@ -3381,7 +3382,7 @@ console.log('fetched!')
       'https://raw.githubusercontent.com/ByadminPresents/testhelper/refs/heads/main/auto-image-styles.css',
       { 'data-wplace-theme': 'true' }
     );
-
+showTranslationWarning('Initializing container');
     const container = document.createElement('div');
     container.id = 'wplace-image-bot-container';
     container.innerHTML = `
@@ -4259,7 +4260,7 @@ console.log('fetched!')
 
     // Show the main container after all elements are appended
     container.style.display = 'block';
-
+showTranslationWarning('Containers initialized');
     const uploadBtn = container.querySelector('#uploadBtn');
     const resizeBtn = container.querySelector('#resizeBtn');
     // const selectPosBtn = container.querySelector('#selectPosBtn');
