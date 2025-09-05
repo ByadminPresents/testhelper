@@ -3378,7 +3378,7 @@ console.log('fetched!')
     }
 
     appendLinkOnce(
-      'https:///raw.githubusercontent.com/ByadminPresents/testhelper/refs/heads/main/auto-image-styles.css',
+      'https://raw.githubusercontent.com/ByadminPresents/testhelper/refs/heads/main/auto-image-styles.css',
       { 'data-wplace-theme': 'true' }
     );
 
@@ -7788,3 +7788,4 @@ function updateCooldown(newValue) {
     });
   });
 })();
+
