@@ -1,4 +1,4 @@
-// eslint-disable-next-line prettier/prettier 2
+// eslint-disable-next-line prettier/prettier
 ; (async () => {
   // CONFIGURATION CONSTANTS
   const CONFIG = {
@@ -7700,7 +7700,8 @@ function updateCooldown(newValue) {
   // Load theme preference immediately on startup before creating UI
   loadThemePreference();
   applyTheme();
-
+try
+{
   createUI().then(() => {
     // Generate token automatically after UI is ready
     setTimeout(initializeTokenGenerator, 1000);
@@ -7788,4 +7789,8 @@ function updateCooldown(newValue) {
       Utils.cleanupTurnstile();
     });
   });
+}
+catch (err) {
+  showTranslationWarning(err.message)
+}
 })();
