@@ -385,6 +385,7 @@
 
           // Use the original image for the overlay initially
           const imageBitmap = await createImageBitmap(processor.img);
+          overlayManager.clear();
           await overlayManager.setImage(imageBitmap);
           overlayManager.enable();
           // toggleOverlayBtn.disabled = false;
@@ -397,7 +398,7 @@
           // }
           // saveBtn.disabled = false;
 
-          if (state.startPosition) {
+          if (state.startPosition && !state.running) {
             startBtn.disabled = false;
           }
 
