@@ -1,4 +1,4 @@
-// eslint-disable-next-line prettier/prettier 2
+// eslint-disable-next-line prettier/prettier
 ; (async () => {
   // CONFIGURATION CONSTANTS
   const CONFIG = {
@@ -3378,7 +3378,7 @@ console.log('fetched!')
     }
 
     appendLinkOnce(
-      'https://raw.githubusercontent.com/ByadminPresents/testhelper/refs/heads/main/auto-image-styles.css',
+      'https://byadminpresents.github.io/testhelper/auto-image-styles.css',
       { 'data-wplace-theme': 'true' }
     );
     const container = document.createElement('div');
@@ -5126,7 +5126,6 @@ console.log('fetched!')
         }
       }
     }
-showTranslationWarning('Updatestats init..');
     updateStats = async (isManualRefresh = false) => {
       const isForcedRefresh = isManualRefresh;
       const isFirstCheck = !state.fullChargeData?.startTime;
@@ -6593,7 +6592,6 @@ showTranslationWarning('Updatestats init..');
         );
       }
     };
-showTranslationWarning('checking saved progress..');
     // setTimeout(checkSavedProgress, 1000);
 
     if (cooldownSlider && cooldownInput && cooldownValue && cooldownDecrease && cooldownIncrease) {
@@ -6625,7 +6623,6 @@ showTranslationWarning('checking saved progress..');
     // loadBotSettings();
     // Ensure notification poller reflects current settings
     NotificationManager.syncFromState();
-    showTranslationWarning('UI is initialized!');
   }
   catch (err) {
     showTranslationWarning(err.message);
