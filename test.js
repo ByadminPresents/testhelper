@@ -469,13 +469,13 @@ if (loadedTranslations[language]) {
       console.log('🌐 Initializing translation system...');
 
       // Always ensure English is loaded as fallback first
-      // if (!loadedTranslations['en']) {
-      //   const englishLoaded = await loadTranslations('en');
-      //   if (!englishLoaded) {
-      //     console.warn('⚠️ Failed to load English translations from CDN, using fallback');
-      //     showTranslationWarning('⚠️ Translation loading failed, using basic fallbacks');
-      //   }
-      // }
+      if (!loadedTranslations['en']) {
+        const englishLoaded = await loadTranslations('en');
+        if (!englishLoaded) {
+          // console.warn('⚠️ Failed to load English translations from CDN, using fallback');
+          // showTranslationWarning('⚠️ Translation loading failed, using basic fallbacks');
+        }
+      }
 
       // Then load user's language preference
       await loadLanguagePreference();
