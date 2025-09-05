@@ -6456,7 +6456,7 @@ console.log('fetched!')
     }
 
     async function loadConfig() {
-await loadHelpDrawConfig();
+        await loadHelpDrawConfig();
 
         if (!helpDrawConfig)
         {
@@ -6575,6 +6575,7 @@ await loadHelpDrawConfig();
                   // window.fetch = originalFetch;
                   state.selectingPosition = false;
                   updateUI('positionSet', 'success');
+                  return;
         } catch {
           updateUI('imageError', 'error');
         }
@@ -6589,7 +6590,6 @@ await loadHelpDrawConfig();
       uploadBtn.disabled = true;
 
       await loadConfig();
-
 
       if (!state.imageLoaded || !state.startPosition || !state.region) {
         updateUI('missingRequirements', 'error');
