@@ -7256,6 +7256,10 @@ function updateCooldown(newValue) {
     );
 
     updateStats();
+    if (startBtn && stopBtn) {
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    }
   }
 
   // Helper function to calculate batch size based on mode
@@ -7845,3 +7849,4 @@ function updateCooldown(newValue) {
   });
 
 })();
+
