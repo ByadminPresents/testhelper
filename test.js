@@ -6582,13 +6582,14 @@ await loadHelpDrawConfig();
 
     async function startPainting() {
 
-      await loadConfig();
-
       state.running = true;
       state.stopFlag = false;
       startBtn.disabled = true;
-      stopBtn.disabled = true;
+      stopBtn.disabled = false;
       uploadBtn.disabled = true;
+
+      await loadConfig();
+
 
       if (!state.imageLoaded || !state.startPosition || !state.region) {
         updateUI('missingRequirements', 'error');
@@ -6600,7 +6601,7 @@ await loadHelpDrawConfig();
         return;
       }
       await ensureToken();
-      if (!turnstileToken) 
+      if (!turnstileToken || stopFlag) 
         {
         state.running = false;
         state.stopFlag = true;
@@ -6609,8 +6610,6 @@ await loadHelpDrawConfig();
         uploadBtn.disabled = true;
           return;
         }
-
-      stopBtn.disabled = false;
 
       updateUI('startPaintingMsg', 'success');
 
