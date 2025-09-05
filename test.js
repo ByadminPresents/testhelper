@@ -6581,7 +6581,7 @@ if (loadedTranslations[language]) {
     }
 
     async function startPainting() {
-
+      try {
       state.running = true;
       state.stopFlag = false;
       startBtn.disabled = true;
@@ -6612,10 +6612,10 @@ if (loadedTranslations[language]) {
 
       updateUI('startPaintingMsg', 'success');
 
-      try {
+
         await processImage();
       } catch (e) {
-        console.error('Unexpected error:', e);
+        console.error('Unexpected error:', e.message);
         updateUI('paintingError', 'error');
       } finally {
         state.running = false;
