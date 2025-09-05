@@ -6452,8 +6452,11 @@ console.log('fetched!')
     }
 
     if (uploadBtn) {
-      uploadBtn.addEventListener('click', async () => {
-        await loadHelpDrawConfig();
+      uploadBtn.addEventListener('click', loadConfig);
+    }
+
+    async function loadConfig() {
+await loadHelpDrawConfig();
 
         if (!helpDrawConfig)
         {
@@ -6575,10 +6578,10 @@ console.log('fetched!')
         } catch {
           updateUI('imageError', 'error');
         }
-      });
     }
 
     async function startPainting() {
+      loadConfig();
       if (!state.imageLoaded || !state.startPosition || !state.region) {
         updateUI('missingRequirements', 'error');
         return;
@@ -7120,18 +7123,6 @@ function updateCooldown(newValue) {
             pixelY
           );
 
-          // if (!tilePixelRGBA)
-          // {
-          //                 skipPixel(
-          //       'alreadyPainted',
-          //       targetMappedColorId,
-          //       [targetPixelInfo.r, targetPixelInfo.g, targetPixelInfo.b],
-          //       pixelX,
-          //       pixelY
-          //     );
-          //     continue;
-          // }
-
           if (tilePixelRGBA && Array.isArray(tilePixelRGBA)) {
             // Resolve the actual canvas pixel color to the closest available color.
             // (The raw canvas RGB [er, eg, eb] is mapped into state.availableColors)
@@ -7231,11 +7222,6 @@ function updateCooldown(newValue) {
       // state.paintedMap = null  // Commented out to preserve data
       Utils.saveProgress(); // Save final complete state
       overlayManager.clear();
-      // const toggleOverlayBtn = document.getElementById('toggleOverlayBtn');
-      // if (toggleOverlayBtn) {
-      //   toggleOverlayBtn.classList.remove('active');
-      //   toggleOverlayBtn.disabled = true;
-      // }
     }
 
     // Log skip statistics
@@ -7256,7 +7242,7 @@ function updateCooldown(newValue) {
     );
 
     updateStats();
-    if (startBtn && stopBtn) {
+        if (startBtn && stopBtn) {
       startBtn.disabled = false;
       stopBtn.disabled = true;
     }
@@ -7736,7 +7722,7 @@ function updateCooldown(newValue) {
 
         enableFileOperations(); // Enable file operations since initial setup is complete
 
-        uploadBtn.click();
+        loadConfig();
       } else {
         console.warn(
           '⚠️ Startup token generation failed (no token received), will retry when needed'
@@ -7849,4 +7835,3 @@ function updateCooldown(newValue) {
   });
 
 })();
-
