@@ -974,8 +974,6 @@ if (loadedTranslations[language]) {
       let finalBlob = blobData;
 
       if (this.isEnabled && this.chunkedTiles.size > 0) {
-console.log('fetched!')
-
         const tileMatch = endpoint.match(/(\d+)\/(\d+)\.png/);
         if (tileMatch) {
           const tileX = parseInt(tileMatch[1], 10);
@@ -6590,7 +6588,7 @@ console.log('fetched!')
       stopBtn.disabled = false;
       uploadBtn.disabled = true;
 
-      await loadConfig();
+      // await loadConfig();
 
       if (!state.imageLoaded || !state.startPosition || !state.region) {
         updateUI('missingRequirements', 'error');
