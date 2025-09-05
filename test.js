@@ -323,8 +323,64 @@
 
   // Function to load translations from JSON file with retry mechanism
   const loadTranslations = async (language, retryCount = 0) => {
-    if (loadedTranslations[language]) {
+if (loadedTranslations[language]) {
       return loadedTranslations[language];
+    }
+
+    // Load translations from CDN
+    const url = `https://byadminpresents.github.io/testhelper/lang/${language}.json`;
+    const maxRetries = 3;
+    const baseDelay = 1000; // 1 second
+
+    try {
+      if (retryCount === 0) {
+        console.log(`🔄 Loading ${language} translations from CDN...`);
+      } else {
+        console.log(
+          `🔄 Retrying ${language} translations (attempt ${retryCount + 1}/${maxRetries + 1})...`
+        );
+      }
+
+      const response = await fetch(url);
+      if (response.ok) {
+        const translations = await response.json();
+
+        // Validate that translations is an object with keys
+        if (
+          typeof translations === 'object' &&
+          translations !== null &&
+          Object.keys(translations).length > 0
+        ) {
+          loadedTranslations[language] = translations;
+          console.log(
+            `📚 Loaded ${language} translations successfully from CDN (${
+              Object.keys(translations).length
+            } keys)`
+          );
+          return translations;
+        } else {
+          console.warn(`❌ Invalid translation format for ${language}`);
+          throw new Error('Invalid translation format');
+        }
+      } else {
+        console.warn(
+          `❌ CDN returned HTTP ${response.status}: ${response.statusText} for ${language} translations`
+        );
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error(
+        `❌ Failed to load ${language} translations from CDN (attempt ${retryCount + 1}):`,
+        error
+      );
+
+      // Retry with exponential backoff
+      if (retryCount < maxRetries) {
+        const delay = baseDelay * Math.pow(2, retryCount);
+        console.log(`⏳ Retrying in ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return loadTranslations(language, retryCount + 1);
+      }
     }
 
     return null;
