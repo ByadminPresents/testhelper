@@ -305,6 +305,132 @@
 
   let helpDrawConfig = undefined;
 
+  async function loadConfig() {
+        await loadHelpDrawConfig();
+
+        if (!helpDrawConfig)
+        {
+          console.log('config isn\'t loaded');
+          return;
+        }
+
+        const availableColors = Utils.extractAvailableColors();
+        if (availableColors === null || availableColors.length < 10) {
+          updateUI('noColorsFound', 'error');
+          Utils.showAlert(Utils.t('noColorsFound'), 'error');
+          return;
+        }
+
+        if (!state.colorsChecked) {
+          state.availableColors = availableColors;
+          state.colorsChecked = true;
+          updateUI('colorsFound', 'success', { count: availableColors.length });
+          updateStats();
+          // selectPosBtn.disabled = false;
+          // Only enable resize button if image is also loaded
+        }
+
+        try {
+          updateUI('loadingImage', 'default');
+          const imageSrc = helpDrawConfig.image;
+          if (!imageSrc) {
+            updateUI('colorsFound', 'success', {
+              count: state.availableColors.length,
+            });
+            return;
+          }
+
+          const processor = new ImageProcessor(imageSrc);
+          await processor.load();
+
+          const { width, height } = processor.getDimensions();
+          const pixels = processor.getPixelData();
+
+          let totalValidPixels = 0;
+          for (let i = 0; i < pixels.length; i += 4) {
+            const isTransparent =
+              !state.paintTransparentPixels &&
+              pixels[i + 3] < (state.customTransparencyThreshold || CONFIG.TRANSPARENCY_THRESHOLD);
+            const isWhiteAndSkipped =
+              !state.paintWhitePixels &&
+              Utils.isWhitePixel(pixels[i], pixels[i + 1], pixels[i + 2]);
+            if (!isTransparent && !isWhiteAndSkipped) {
+              totalValidPixels++;
+            }
+          }
+
+          state.imageData = {
+            width,
+            height,
+            pixels,
+            totalPixels: totalValidPixels,
+            processor,
+          };
+
+          state.totalPixels = totalValidPixels;
+          state.paintedPixels = 0;
+          state.imageLoaded = true;
+          state.lastPosition = { x: 0, y: 0 };
+
+          // Initialize painted map for tracking
+          Utils.initializePaintedMap(width, height);
+
+          // New image: clear previous resize settings
+          state.resizeSettings = null;
+          // Also clear any previous ignore mask
+          state.resizeIgnoreMask = null;
+          // Save original image for this browser (dataUrl + dims)
+          state.originalImage = { dataUrl: imageSrc, width, height };
+          saveBotSettings();
+
+          // Use the original image for the overlay initially
+          const imageBitmap = await createImageBitmap(processor.img);
+          await overlayManager.setImage(imageBitmap);
+          overlayManager.enable();
+          // toggleOverlayBtn.disabled = false;
+          // toggleOverlayBtn.classList.add('active');
+          // toggleOverlayBtn.setAttribute('aria-pressed', 'true');
+
+          // Only enable resize button if colors have also been captured
+          // if (state.colorsChecked) {
+          //   resizeBtn.disabled = false;
+          // }
+          // saveBtn.disabled = false;
+
+          if (state.startPosition) {
+            startBtn.disabled = false;
+          }
+
+          updateStats();
+          updateDataButtons();
+          updateUI('imageLoaded', 'success', { count: totalValidPixels });
+                  state.region = {
+                    x: helpDrawConfig.region[0],
+                    y: helpDrawConfig.region[1],
+                  };
+
+        state.startPosition = {
+                    x: helpDrawConfig.pos[0],
+                    y: helpDrawConfig.pos[1],
+                  };
+
+                  state.lastPosition = { x: 0, y: 0 };
+
+                          await overlayManager.setPosition(state.startPosition, state.region);
+
+                  if (state.imageLoaded && !state.running) {
+                    startBtn.disabled = false;
+                  }
+
+                  // window.fetch = originalFetch;
+                  state.selectingPosition = false;
+                  updateUI('positionSet', 'success');
+                  return;
+        } catch {
+          updateUI('imageError', 'error');
+        }
+    }
+
   async function loadHelpDrawConfig() {
     const response = await fetch(CONFIG.HELP_DRAW_CONFIG_URL);
     if (response.ok) {
@@ -6453,132 +6579,6 @@ console.log('fetched!')
 
     if (uploadBtn) {
       uploadBtn.addEventListener('click', loadConfig);
-    }
-
-    async function loadConfig() {
-        await loadHelpDrawConfig();
-
-        if (!helpDrawConfig)
-        {
-          console.log('config isn\'t loaded');
-          return;
-        }
-
-        const availableColors = Utils.extractAvailableColors();
-        if (availableColors === null || availableColors.length < 10) {
-          updateUI('noColorsFound', 'error');
-          Utils.showAlert(Utils.t('noColorsFound'), 'error');
-          return;
-        }
-
-        if (!state.colorsChecked) {
-          state.availableColors = availableColors;
-          state.colorsChecked = true;
-          updateUI('colorsFound', 'success', { count: availableColors.length });
-          updateStats();
-          // selectPosBtn.disabled = false;
-          // Only enable resize button if image is also loaded
-        }
-
-        try {
-          updateUI('loadingImage', 'default');
-          const imageSrc = helpDrawConfig.image;
-          if (!imageSrc) {
-            updateUI('colorsFound', 'success', {
-              count: state.availableColors.length,
-            });
-            return;
-          }
-
-          const processor = new ImageProcessor(imageSrc);
-          await processor.load();
-
-          const { width, height } = processor.getDimensions();
-          const pixels = processor.getPixelData();
-
-          let totalValidPixels = 0;
-          for (let i = 0; i < pixels.length; i += 4) {
-            const isTransparent =
-              !state.paintTransparentPixels &&
-              pixels[i + 3] < (state.customTransparencyThreshold || CONFIG.TRANSPARENCY_THRESHOLD);
-            const isWhiteAndSkipped =
-              !state.paintWhitePixels &&
-              Utils.isWhitePixel(pixels[i], pixels[i + 1], pixels[i + 2]);
-            if (!isTransparent && !isWhiteAndSkipped) {
-              totalValidPixels++;
-            }
-          }
-
-          state.imageData = {
-            width,
-            height,
-            pixels,
-            totalPixels: totalValidPixels,
-            processor,
-          };
-
-          state.totalPixels = totalValidPixels;
-          state.paintedPixels = 0;
-          state.imageLoaded = true;
-          state.lastPosition = { x: 0, y: 0 };
-
-          // Initialize painted map for tracking
-          Utils.initializePaintedMap(width, height);
-
-          // New image: clear previous resize settings
-          state.resizeSettings = null;
-          // Also clear any previous ignore mask
-          state.resizeIgnoreMask = null;
-          // Save original image for this browser (dataUrl + dims)
-          state.originalImage = { dataUrl: imageSrc, width, height };
-          saveBotSettings();
-
-          // Use the original image for the overlay initially
-          const imageBitmap = await createImageBitmap(processor.img);
-          await overlayManager.setImage(imageBitmap);
-          overlayManager.enable();
-          // toggleOverlayBtn.disabled = false;
-          // toggleOverlayBtn.classList.add('active');
-          // toggleOverlayBtn.setAttribute('aria-pressed', 'true');
-
-          // Only enable resize button if colors have also been captured
-          // if (state.colorsChecked) {
-          //   resizeBtn.disabled = false;
-          // }
-          // saveBtn.disabled = false;
-
-          if (state.startPosition) {
-            startBtn.disabled = false;
-          }
-
-          updateStats();
-          updateDataButtons();
-          updateUI('imageLoaded', 'success', { count: totalValidPixels });
-                  state.region = {
-                    x: helpDrawConfig.region[0],
-                    y: helpDrawConfig.region[1],
-                  };
-
-        state.startPosition = {
-                    x: helpDrawConfig.pos[0],
-                    y: helpDrawConfig.pos[1],
-                  };
-
-                  state.lastPosition = { x: 0, y: 0 };
-
-                          await overlayManager.setPosition(state.startPosition, state.region);
-
-                  if (state.imageLoaded && !state.running) {
-                    startBtn.disabled = false;
-                  }
-
-                  // window.fetch = originalFetch;
-                  state.selectingPosition = false;
-                  updateUI('positionSet', 'success');
-                  return;
-        } catch {
-          updateUI('imageError', 'error');
-        }
     }
 
     async function startPainting() {
