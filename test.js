@@ -327,62 +327,6 @@
       return loadedTranslations[language];
     }
 
-    // Load translations from CDN
-    const url = `https://wplace-autobot.github.io/WPlace-AutoBOT/main/lang/${language}.json`;
-    const maxRetries = 3;
-    const baseDelay = 1000; // 1 second
-
-    try {
-      if (retryCount === 0) {
-        console.log(`🔄 Loading ${language} translations from CDN...`);
-      } else {
-        console.log(
-          `🔄 Retrying ${language} translations (attempt ${retryCount + 1}/${maxRetries + 1})...`
-        );
-      }
-
-      const response = await fetch(url);
-      if (response.ok) {
-        const translations = await response.json();
-
-        // Validate that translations is an object with keys
-        if (
-          typeof translations === 'object' &&
-          translations !== null &&
-          Object.keys(translations).length > 0
-        ) {
-          loadedTranslations[language] = translations;
-          console.log(
-            `📚 Loaded ${language} translations successfully from CDN (${
-              Object.keys(translations).length
-            } keys)`
-          );
-          return translations;
-        } else {
-          console.warn(`❌ Invalid translation format for ${language}`);
-          throw new Error('Invalid translation format');
-        }
-      } else {
-        console.warn(
-          `❌ CDN returned HTTP ${response.status}: ${response.statusText} for ${language} translations`
-        );
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-    } catch (error) {
-      console.error(
-        `❌ Failed to load ${language} translations from CDN (attempt ${retryCount + 1}):`,
-        error
-      );
-
-      // Retry with exponential backoff
-      if (retryCount < maxRetries) {
-        const delay = baseDelay * Math.pow(2, retryCount);
-        console.log(`⏳ Retrying in ${delay}ms...`);
-        await new Promise((resolve) => setTimeout(resolve, delay));
-        return loadTranslations(language, retryCount + 1);
-      }
-    }
-
     return null;
   };
 
@@ -498,10 +442,10 @@
       title: 'WPlace Auto-Image',
       toggleOverlay: 'Toggle Overlay',
       scanColors: 'Scan Colors',
-      uploadImage: 'Upload Image',
+      downloadConfig: 'Fetch config',
       resizeImage: 'Resize Image',
       selectPosition: 'Select Position',
-      startPainting: 'Start Painting',
+      startPainting: 'Paint!',
       stopPainting: 'Stop Painting',
       progress: 'Progress',
       pixels: 'Pixels',
@@ -3434,7 +3378,7 @@ console.log('fetched!')
     }
 
     appendLinkOnce(
-      'https://wplace-autobot.github.io/WPlace-AutoBOT/main/auto-image-styles.css',
+      'https:///raw.githubusercontent.com/ByadminPresents/testhelper/refs/heads/main/auto-image-styles.css',
       { 'data-wplace-theme': 'true' }
     );
 
@@ -3474,24 +3418,14 @@ console.log('fetched!')
 
         <!-- Image Section -->
         <div class="wplace-section">
-          <div class="wplace-section-title">🖼️ Image Management</div>
+          <div class="wplace-section-title"><i class="fas fa-cog wplace-settings-icon"></i> Config loader</div>
           <div class="wplace-controls">
             <div class="wplace-row">
               <button id="uploadBtn" class="wplace-btn wplace-btn-upload" disabled title="${Utils.t(
                 'waitingSetupComplete'
               )}">
-                <i class="fas fa-upload"></i>
-                <span>${Utils.t('uploadImage')}</span>
-              </button>
-              <button id="resizeBtn" class="wplace-btn wplace-btn-primary" disabled>
-                <i class="fas fa-expand"></i>
-                <span>${Utils.t('resizeImage')}</span>
-              </button>
-            </div>
-            <div class="wplace-row single">
-              <button id="selectPosBtn" class="wplace-btn wplace-btn-select" disabled>
-                <i class="fas fa-crosshairs"></i>
-                <span>${Utils.t('selectPosition')}</span>
+                <i class="fas fa-download"></i>
+                <span>${Utils.t('downloadConfig')}</span>
               </button>
             </div>
           </div>
@@ -4328,7 +4262,7 @@ console.log('fetched!')
 
     const uploadBtn = container.querySelector('#uploadBtn');
     const resizeBtn = container.querySelector('#resizeBtn');
-    const selectPosBtn = container.querySelector('#selectPosBtn');
+    // const selectPosBtn = container.querySelector('#selectPosBtn');
     const startBtn = container.querySelector('#startBtn');
     const stopBtn = container.querySelector('#stopBtn');
     const saveBtn = container.querySelector('#saveBtn');
@@ -5058,7 +4992,7 @@ console.log('fetched!')
               uploadBtn.disabled = false;
             } else {
               uploadBtn.disabled = false;
-              selectPosBtn.disabled = false;
+              // selectPosBtn.disabled = false;
             }
 
             if (state.imageLoaded && state.startPosition && state.region && state.colorsChecked) {
@@ -5107,8 +5041,6 @@ console.log('fetched!')
 
             if (state.colorsChecked) {
               uploadBtn.disabled = false;
-              selectPosBtn.disabled = false;
-              resizeBtn.disabled = false;
             } else {
               uploadBtn.disabled = false;
             }
@@ -5178,13 +5110,13 @@ console.log('fetched!')
         currentChargesEl.innerHTML = `${state.displayCharges} / ${state.maxCharges}`;
       }
 
-      if (
-        state.displayCharges < state.cooldownChargeThreshold &&
-        !state.stopFlag &&
-        state.running
-      ) {
-        updateChargesThresholdUI(intervalMs);
-      }
+      // if (
+      //   state.displayCharges < state.cooldownChargeThreshold &&
+      //   !state.stopFlag &&
+      //   state.running
+      // ) {
+      //   updateChargesThresholdUI(intervalMs);
+      // }
 
       if (fullChargeEl) {
         if (state.displayCharges >= max) {
@@ -6488,11 +6420,8 @@ console.log('fetched!')
           state.colorsChecked = true;
           updateUI('colorsFound', 'success', { count: availableColors.length });
           updateStats();
-          selectPosBtn.disabled = false;
+          // selectPosBtn.disabled = false;
           // Only enable resize button if image is also loaded
-          if (state.imageLoaded) {
-            resizeBtn.disabled = false;
-          }
         }
 
         try {
@@ -6596,115 +6525,6 @@ console.log('fetched!')
       });
     }
 
-    if (resizeBtn) {
-      resizeBtn.addEventListener('click', () => {
-        if (state.imageLoaded && state.imageData.processor && state.colorsChecked) {
-          showResizeDialog(state.imageData.processor);
-        } else if (!state.colorsChecked) {
-          Utils.showAlert(Utils.t('uploadImageFirstColors'), 'warning');
-        }
-      });
-    }
-
-    if (selectPosBtn) {
-      selectPosBtn.addEventListener('click', async () => {
-
-        return;
-
-        if (state.selectingPosition) return;
-
-        state.selectingPosition = true;
-        state.startPosition = null;
-        state.region = null;
-        startBtn.disabled = true;
-
-        Utils.showAlert(Utils.t('selectPositionAlert'), 'info');
-        //updateUI('waitingPosition', 'default');
-        state.region = {
-                    x: 1398,
-                    y: 626,
-                  };
-
-        state.startPosition = {
-                    x: 522,
-                    y: 353,
-                  };
-
-                  state.lastPosition = { x: 0, y: 0 };
-
-                          await overlayManager.setPosition(state.startPosition, state.region);
-                          
-
-                  if (state.imageLoaded) {
-                    startBtn.disabled = false;
-                  }
-
-                  // window.fetch = originalFetch;
-                  state.selectingPosition = false;
-                  updateUI('positionSet', 'success');
-
-        // const tempFetch = async (url, options) => {
-        //   if (
-        //     typeof url === 'string' &&
-        //     url.includes('https://backend.wplace.live/s0/pixel/') &&
-        //     options?.method?.toUpperCase() === 'POST'
-        //   ) {
-        //     try {
-        //       const response = await originalFetch(url, options);
-        //       const clonedResponse = response.clone();
-        //       const data = await clonedResponse.json();
-
-        //       if (data?.painted === 1) {
-        //         const regionMatch = url.match(/\/pixel\/(\d+)\/(\d+)/);
-        //         if (regionMatch && regionMatch.length >= 3) {
-        //           state.region = {
-        //             x: Number.parseInt(regionMatch[1]),
-        //             y: Number.parseInt(regionMatch[2]),
-        //           };
-        //         }
-
-        //         const payload = JSON.parse(options.body);
-        //         if (payload?.coords && Array.isArray(payload.coords)) {
-        //           state.startPosition = {
-        //             x: payload.coords[0],
-        //             y: payload.coords[1],
-        //           };
-        //           state.lastPosition = { x: 0, y: 0 };
-
-        //           await overlayManager.setPosition(state.startPosition, state.region);
-
-        //           if (state.imageLoaded) {
-        //             startBtn.disabled = false;
-        //           }
-
-        //           window.fetch = originalFetch;
-        //           state.selectingPosition = false;
-        //           updateUI('positionSet', 'success');
-        //         }
-        //       }
-
-        //       return response;
-        //     } catch {
-        //       return originalFetch(url, options);
-        //     }
-        //   }
-        //   return originalFetch(url, options);
-        // };
-
-        // const originalFetch = window.fetch;
-        // window.fetch = tempFetch;
-
-        // setTimeout(() => {
-        //   if (state.selectingPosition) {
-        //     window.fetch = originalFetch;
-        //     state.selectingPosition = false;
-        //     updateUI('positionTimeout', 'error');
-        //     Utils.showAlert(Utils.t('positionTimeout'), 'error');
-        //   }
-        // }, 120000);
-      });
-    }
-
     async function startPainting() {
       if (!state.imageLoaded || !state.startPosition || !state.region) {
         updateUI('missingRequirements', 'error');
@@ -6718,10 +6538,6 @@ console.log('fetched!')
       startBtn.disabled = true;
       stopBtn.disabled = false;
       uploadBtn.disabled = true;
-      selectPosBtn.disabled = true;
-      resizeBtn.disabled = true;
-      // saveBtn.disabled = true;
-      // toggleOverlayBtn.disabled = true;
 
       updateUI('startPaintingMsg', 'success');
 
@@ -6740,10 +6556,7 @@ console.log('fetched!')
         } else {
           startBtn.disabled = true;
           uploadBtn.disabled = false;
-          selectPosBtn.disabled = false;
-          resizeBtn.disabled = false;
         }
-        toggleOverlayBtn.disabled = false;
       }
     }
 
@@ -7024,7 +6837,7 @@ function updateCooldown(newValue) {
         painted: state.paintedPixels,
         total: state.totalPixels,
       });
-      Utils.performSmartSave();
+      // Utils.performSmartSave();
 
       if (CONFIG.PAINTING_SPEED_ENABLED && state.paintingSpeed > 0 && batchSize > 0) {
         const delayPerPixel = 1000 / state.paintingSpeed;
@@ -7156,7 +6969,6 @@ function updateCooldown(newValue) {
             console.log(
               `🎯 Sending last batch before stop with ${pixelBatch.pixels.length} pixels`
             );
-            debugger;
             await flushPixelBatch(pixelBatch);
           }
           state.lastPosition = { x, y };
@@ -7332,21 +7144,6 @@ function updateCooldown(newValue) {
 
           pixelBatch.pixels = [];
         }
-
-        // if (state.displayCharges < state.cooldownChargeThreshold && !state.stopFlag) {
-        //   await Utils.dynamicSleep(() => {
-        //     if (state.displayCharges >= state.cooldownChargeThreshold) {
-        //       NotificationManager.maybeNotifyChargesReached(true);
-        //       return 0;
-        //     }
-        //     if (state.stopFlag) return 0;
-        //     return getMsToTargetCharges(
-        //       state.preciseCurrentCharges,
-        //       state.cooldownChargeThreshold,
-        //       state.cooldown
-        //     );
-        //   });
-        // }
 
         if (state.stopFlag) {
           // noinspection UnnecessaryLabelOnBreakStatementJS
